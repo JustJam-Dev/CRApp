@@ -359,3 +359,36 @@ impl CrapApp {
         });
     }
 }
+
+impl CrapApp {
+    /// Export character as SillyTavern V3 JSON card (uses ST-specific fields only)
+    pub fn export_character_sillytavern(&self, character: &Character) {
+        let char_clone = character.clone();
+        let name_slug = if character.st_name.is_empty() {
+            character.name.replace(" ", "_")
+        } else {
+            character.st_name.replace(" ", "_")
+        };
+        let task_name = format!("{}_st.json", name_slug);
+
+        tokio::task::spawn_blocking(move || {
+            if let Some(path) = rfd::FileDialog::new()
+                .set_directory("exports")
+                .set_file_name(task_name)
+                .save_file()
+            {
+                let card = crate::card_v2::SillyTavernCard::from_character(&char_clone);
+                match serde_json::to_string_pretty(&card) {
+                    Ok(json) => {
+                        if let Err(e) = std::fs::write(&path, json) {
+                            tracing::error!("Failed to write ST export: {}", e);
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!("Failed to serialize ST card: {}", e);
+                    }
+                }
+            }
+        });
+    }
+}
