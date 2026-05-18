@@ -1,3 +1,8 @@
+# Version 0.2.5 - Patch Notes
+
+## New functions
+- **Revert Changes**: Added an optional "↺ REVERT" button to the character editor toolbar. When modifying an existing character in a dirty state, clicking this button opens a confirmation popup window allowing the user to safely discard all unsaved edits and restore the character to its last saved configuration.
+
 # Version 0.2.4 - Patch Notes
 
 ## New functions

@@ -157,6 +157,36 @@ pub fn render_editing_popups(ctx: &egui::Context, app: &mut CrapApp, state: &sup
             }
         }
 
+        super::PopupState::RevertCharacterConfirmation { id, name } => {
+            egui::Window::new("Revert Changes")
+                .collapsible(false)
+                .resizable(false)
+                .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+                .show(ctx, |ui| {
+                    ui.label(format!("Are you sure you want to revert all unsaved changes to '{}'?", name));
+                    ui.label("This will restore the character to its last saved state and discard all current modifications.");
+                    ui.add_space(10.0);
+
+                    ui.horizontal(|ui| {
+                        if ui.button("Yes, Revert").clicked() {
+                            if let Some(selected) = &mut app.selected_character {
+                                if selected.id == *id {
+                                    if let Some(original) = app.characters.iter().find(|c| c.id == *id) {
+                                        *selected = original.clone();
+                                        app.set_status("Reverted changes to last saved state.".to_string(), egui::Color32::GREEN);
+                                    }
+                                }
+                            }
+                            app.popup_state = super::PopupState::None;
+                        }
+
+                        if ui.button("Cancel").clicked() {
+                            app.popup_state = super::PopupState::None;
+                        }
+                    });
+                });
+        }
+
         _ => {}
     }
 }

@@ -8,6 +8,7 @@ pub struct ToolbarAction {
     pub back_to_collection: Option<Option<i64>>,
     pub save_requested: bool,
     pub template_requested: bool,
+    pub revert_requested: bool,
 }
 
 impl Default for ToolbarAction {
@@ -17,6 +18,7 @@ impl Default for ToolbarAction {
             back_to_collection: None,
             save_requested: false,
             template_requested: false,
+            revert_requested: false,
         }
     }
 }
@@ -106,6 +108,19 @@ pub fn render_toolbar(
                 {
                     action.save_requested = true;
                 }
+
+                if is_dirty && character.id != 0 {
+                    ui.add_space(10.0);
+                    let revert_color = egui::Color32::from_rgb(150, 50, 50);
+                    if ui
+                        .add(egui::Button::new(egui::RichText::new("↺ REVERT").strong()).fill(revert_color))
+                        .on_hover_text("Revert all unsaved changes to last saved state")
+                        .clicked()
+                    {
+                        action.revert_requested = true;
+                    }
+                }
+
                 if let Some((msg, color)) = &app.status_message {
                     ui.colored_label(*color, msg);
                 }

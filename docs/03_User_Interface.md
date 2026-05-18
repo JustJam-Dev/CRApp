@@ -74,6 +74,7 @@ Handles the detailed editing interfaces.
     -   **Navigation**: "Back" and "Up" buttons with **Unsaved Changes Protection**.
         -   **History Context Menu**: Right-clicking the "Back" button opens a menu of the navigation stack, allowing jumping to specific past states.
         -   **Lorebook Entry Tracking**: The navigation history captures the specific Lorebook entry being viewed, including its ID and Name, ensuring accurate restoration even if data isn't fully loaded in the background.
+    -   **Revert Changes**: An optional "↺ REVERT" button appears next to the "SAVE" button whenever an existing character has unsaved modifications. Clicking it triggers a confirmation modal to safely discard all unsaved edits and restore the character to its last saved configuration.
     -   **Export**: Export to .crapp (Native), .json (SpicyChat), .md, or .png (Card). Filenames and collection directories are automatically sanitized for Windows compatibility.
     -   **Legacy Compat**: Supports importing V1 and V2 PNG cards.
 -   **Lorebook Editor**:

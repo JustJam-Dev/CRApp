@@ -41,6 +41,10 @@ pub enum PopupState {
     DeleteGalleryImageConfirmation {
         path: String,
     },
+    RevertCharacterConfirmation {
+        id: i64,
+        name: String,
+    },
     UnsavedChanges {
         target: AppAction,
     },
@@ -139,7 +143,8 @@ pub fn render_popups(ctx: &egui::Context, app: &mut CrapApp) {
         // Editing popups
         PopupState::Renaming { .. }
         | PopupState::UnsavedChanges { .. }
-        | PopupState::CollectionIconConfirmation { .. } => {
+        | PopupState::CollectionIconConfirmation { .. }
+        | PopupState::RevertCharacterConfirmation { .. } => {
             editing::render_editing_popups(ctx, app, &state);
         }
 

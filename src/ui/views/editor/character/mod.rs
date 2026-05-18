@@ -56,6 +56,12 @@ pub fn render_editor_view(app: &mut CrapApp, ui: &mut egui::Ui) {
         if let Some(target) = toolbar_action.back_to_collection {
             back_req = Some(target);
         }
+        if toolbar_action.revert_requested {
+            app.popup_state = crate::ui::PopupState::RevertCharacterConfirmation {
+                id: character.id,
+                name: character.name.clone(),
+            };
+        }
 
         ui.horizontal(|ui| {
             ui.label("Collection:");
