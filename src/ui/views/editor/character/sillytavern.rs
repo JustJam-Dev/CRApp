@@ -19,8 +19,6 @@ pub fn render_sillytavern_tab(
         EditorFontFamily::Monospace => Family::Monospace,
     };
 
-
-
     ui.horizontal(|ui| {
         ui.selectable_value(&mut app.active_st_tab, StTab::Main, "Main");
         ui.selectable_value(&mut app.active_st_tab, StTab::Advanced, "Advanced");

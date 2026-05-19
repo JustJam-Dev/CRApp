@@ -14,10 +14,10 @@ pub enum AppMode {
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum CharacterTab {
     MainData,
+    SillyTavern,
     Notes,
     Lorebooks,
     Gallery,
-    SillyTavern,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]

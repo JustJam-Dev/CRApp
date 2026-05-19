@@ -159,7 +159,7 @@ impl Database {
                     }
                 });
 
-        // 7. Ensure SillyTavern fields in 'characters'
+        // Ensure SillyTavern fields in 'characters' for existing databases.
         let st_columns = [
             "ALTER TABLE characters ADD COLUMN st_name TEXT NOT NULL DEFAULT ''",
             "ALTER TABLE characters ADD COLUMN st_description TEXT NOT NULL DEFAULT ''",
