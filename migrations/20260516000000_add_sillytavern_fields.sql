@@ -6,8 +6,6 @@ ALTER TABLE characters ADD COLUMN st_scenario TEXT NOT NULL DEFAULT '';
 ALTER TABLE characters ADD COLUMN st_first_mes TEXT NOT NULL DEFAULT '';
 ALTER TABLE characters ADD COLUMN st_mes_example TEXT NOT NULL DEFAULT '';
 ALTER TABLE characters ADD COLUMN st_creator_notes TEXT NOT NULL DEFAULT '';
-ALTER TABLE characters ADD COLUMN st_system_prompt TEXT NOT NULL DEFAULT '';
-ALTER TABLE characters ADD COLUMN st_post_history_instructions TEXT NOT NULL DEFAULT '';
 ALTER TABLE characters ADD COLUMN st_alternate_greetings_json TEXT;
 ALTER TABLE characters ADD COLUMN st_creator TEXT NOT NULL DEFAULT '';
 ALTER TABLE characters ADD COLUMN st_character_version TEXT NOT NULL DEFAULT '';
