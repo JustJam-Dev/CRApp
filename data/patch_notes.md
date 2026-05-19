@@ -1,7 +1,12 @@
 # Version 0.2.5 - Patch Notes
 
 ## New functions
+- **SillyTavern V3 Card Integration**: Added comprehensive support for the official SillyTavern V3 character card format. Introduce a new, dedicated "Silly Tavern" tab in the character editor featuring sub-tabs for both Main and Advanced parameters. Users can now define independent properties such as creator handle, versioning, alternate greetings, world association, talkativeness index, and custom depth prompts directly inside CRApp.
+- **SillyTavern PNG Character Card Exporter**: Re-engineered low-level PNG chunk writing in the export pipeline. Clicking export writes the SillyTavern card V3 data as Base64 encoded payload into standard-compliant PNG `tEXt` chunks (`chara` and `ccv3` keywords) within the character's avatar image, making exported cards fully compatible with SillyTavern and other third-party frontends.
 - **Revert Changes**: Added an optional "↺ REVERT" button to the character editor toolbar. When modifying an existing character in a dirty state, clicking this button opens a confirmation popup window allowing the user to safely discard all unsaved edits and restore the character to its last saved configuration.
+
+## Architectural Improvements
+- **Database Schema Expansion**: Automatically upgrades existing user databases during initialization, adding 13 new SillyTavern-specific metadata fields to the SQLite database schema while ensuring complete backward-compatibility and zero data loss.
 
 # Version 0.2.4 - Patch Notes
 

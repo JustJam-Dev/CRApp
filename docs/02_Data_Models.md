@@ -22,6 +22,20 @@ Represents an AI character definition.
     -   `external_tags`: `Vec<Tag>` (Tags imported from source, e.g., spicychat).
     -   `urls`: `Vec<CharacterUrl>` (Source URLs for the character).
     -   `spell_check_overrides`: `HashSet<String>` (Names of fields that should ignore spell check).
+    -   **SillyTavern Fields** (stored independently to generate a compliant SillyTavern character card):
+        -   `st_name`: `String` (Character Display name).
+        -   `st_description`: `String` (World context / lore description).
+        -   `st_personality`: `String` (Detailed traits).
+        -   `st_scenario`: `String` (Start scene / environment).
+        -   `st_first_mes`: `String` (First message greeting).
+        -   `st_mes_example`: `String` (Example chat logs).
+        -   `st_creator_notes`: `String` (Author instructions/comments).
+        -   `st_alternate_greetings`: `Vec<String>` (Alternative message greetings).
+        -   `st_creator`: `String` (Creator handle).
+        -   `st_character_version`: `String` (SemVer or custom version string).
+        -   `st_talkativeness`: `f32` (Averaged speak frequency, `0.0` to `1.0`).
+        -   `st_world`: `String` (World lorebook association).
+        -   `st_depth_prompt`: `String` (Context positioning prompt block).
 
 ### CharacterUrl
 Represents a source link for a character.
@@ -91,5 +105,11 @@ Represents a match in the Deep Global Search.
 -   `System`, `Light`, `Dark`.
 
 ## External Formats
+
 ### CharacterCardV2
-Defined in `src/card_v2.rs`, this struct is used for exporting characters to a JSON format compatible with external tools (e.g., TavernAI, SpicyChat).
+Defined in `src/card_v2.rs`, this struct is used for exporting characters to a JSON format compatible with TavernAI and SpicyChat.
+
+### SillyTavernCard (V3 Specification)
+Defined in `src/card_v2.rs`, this struct implements the official **SillyTavern V3 character card specification**. 
+-   **Features**: Supports custom sub-tabs (Main and Advanced properties) in the UI.
+-   **PNG Chunk Export Integration**: The export controller modifies the low-level PNG structure of the character avatar. It removes any legacy cards, wraps the serialized SillyTavern JSON in Base64, and places it into custom PNG `tEXt` chunks under the `chara` and `ccv3` keywords, keeping the output compatible with third-party tools like SillyTavern itself.

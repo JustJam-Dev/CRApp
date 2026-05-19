@@ -36,22 +36,36 @@ If a migration fails, the application will panic/crash to prevent partial data c
 ## Schema
 
 ### Characters Table (`characters`)
-Stores the main character data.
+Stores the main character data, including custom SillyTavern-compatible fields.
 | Column | Type | Description |
-|os | --- | --- |
+| --- | --- | --- |
 | `id` | INTEGER PK | Auto-incrementing ID. |
 | `name` | TEXT | Display name / File name. |
 | `char_name` | TEXT | Internal character name. |
 | `char_title` | TEXT | Subtitle. |
-| `personality` | TEXT | |
-| `scenario` | TEXT | |
-| `example_dialogue` | TEXT | |
-| `first_message` | TEXT | |
-| `author_notes` | TEXT | |
+| `personality` | TEXT | Main character personality definition. |
+| `scenario` | TEXT | Main character scenario definition. |
+| `example_dialogue` | TEXT | Main character example dialogue. |
+| `first_message` | TEXT | Main character greeting message. |
+| `author_notes` | TEXT | Author's notes. |
 | `avatar_path` | TEXT | Path to local file system. |
 | `collection_id` | INTEGER FK | Links to `collections`. |
-| `created_at` | DATETIME | |
-| `updated_at` | DATETIME | |
+| `created_at` | DATETIME | Creation timestamp. |
+| `updated_at` | DATETIME | Last update timestamp. |
+| `blur_avatar` | BOOLEAN | Toggle for blurred avatar presentation in browser. |
+| `st_name` | TEXT | SillyTavern specific: display name. |
+| `st_description` | TEXT | SillyTavern specific: description / world info. |
+| `st_personality` | TEXT | SillyTavern specific: personality string. |
+| `st_scenario` | TEXT | SillyTavern specific: scenario scenario. |
+| `st_first_mes` | TEXT | SillyTavern specific: first message. |
+| `st_mes_example` | TEXT | SillyTavern specific: message examples. |
+| `st_creator_notes` | TEXT | SillyTavern specific: creator's notes. |
+| `st_alternate_greetings_json`| TEXT | SillyTavern specific: array of alternative greetings (JSON). |
+| `st_creator` | TEXT | SillyTavern specific: character card creator name. |
+| `st_character_version` | TEXT | SillyTavern specific: version identifier. |
+| `st_talkativeness` | REAL | SillyTavern specific: talkativeness factor (0.0 to 1.0). |
+| `st_world` | TEXT | SillyTavern specific: world / lore association. |
+| `st_depth_prompt` | TEXT | SillyTavern specific: custom depth prompt. |
 
 ### Character URLs Table (`character_urls`)
 Stores multiple source links per character.
