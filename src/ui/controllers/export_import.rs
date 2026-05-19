@@ -123,26 +123,35 @@ impl CrapApp {
                 // Cleanup snapshot
                 let _ = std::fs::remove_file(&temp_db_path);
 
-                // 4. Add 'data' folder
-                let data_dir = std::path::Path::new("data");
-                if data_dir.exists() {
-                    let walk = walkdir::WalkDir::new(data_dir);
-                    for entry in walk.into_iter().filter_map(|e| e.ok()) {
-                        let path = entry.path();
-                        let name = path.strip_prefix(std::path::Path::new(".")).unwrap_or(path);
-                        let name_str = name.to_string_lossy().replace("\\", "/"); // Zip requires forward slashes
+                // 4. Add 'data' folders (only allowed user-data folders)
+                let allowed_subdirs = [
+                    std::path::Path::new("data/avatars"),
+                    std::path::Path::new("data/collection_images"),
+                    std::path::Path::new("data/covers"),
+                    std::path::Path::new("data/gallery"),
+                    std::path::Path::new("data/background"),
+                ];
 
-                        if path.is_file() {
-                            if let Err(e) = zip.start_file(name_str, options) {
-                                tracing::error!("Failed to start zip file {}: {}", path.display(), e);
-                                let _ = tx.send(UiEvent::StatusMessage(format!("Export error: {}", e), eframe::egui::Color32::RED)).await;
-                                continue;
+                for subdir in &allowed_subdirs {
+                    if subdir.exists() {
+                        let walk = walkdir::WalkDir::new(subdir);
+                        for entry in walk.into_iter().filter_map(|e| e.ok()) {
+                            let path = entry.path();
+                            let name = path.strip_prefix(std::path::Path::new(".")).unwrap_or(path);
+                            let name_str = name.to_string_lossy().replace("\\", "/"); // Zip requires forward slashes
+
+                            if path.is_file() {
+                                if let Err(e) = zip.start_file(name_str, options) {
+                                    tracing::error!("Failed to start zip file {}: {}", path.display(), e);
+                                    let _ = tx.send(UiEvent::StatusMessage(format!("Export error: {}", e), eframe::egui::Color32::RED)).await;
+                                    continue;
+                                }
+                                if let Ok(mut f) = std::fs::File::open(path) {
+                                    let _ = std::io::copy(&mut f, &mut zip);
+                                }
+                            } else if path.is_dir() && !name.as_os_str().is_empty() {
+                                let _ = zip.add_directory(name_str, options);
                             }
-                            if let Ok(mut f) = std::fs::File::open(path) {
-                                let _ = std::io::copy(&mut f, &mut zip);
-                            }
-                        } else if path.is_dir() && !name.as_os_str().is_empty() {
-                            let _ = zip.add_directory(name_str, options);
                         }
                     }
                 }
@@ -230,11 +239,60 @@ impl CrapApp {
                         Ok(file) => {
                             match zip::ZipArchive::new(file) {
                                 Ok(mut archive) => {
-                                    // Extract everything
-                                    match archive.extract(".") {
-                                        Ok(_) => Ok(()),
-                                        Err(e) => Err(format!("Unzip failed: {}", e)),
+                                    let mut unzip_res = Ok(());
+                                    for i in 0..archive.len() {
+                                        let mut file = match archive.by_index(i) {
+                                            Ok(f) => f,
+                                            Err(e) => {
+                                                unzip_res = Err(format!("Failed to read zip entry: {}", e));
+                                                break;
+                                            }
+                                        };
+                                        let outpath = match file.enclosed_name() {
+                                            Some(p) => p.to_owned(),
+                                            None => continue,
+                                        };
+
+                                        // Only extract crap_data.db and standard user-data folders
+                                        let path_str = outpath.to_string_lossy().replace("\\", "/");
+                                        let is_allowed = path_str == "crap_data.db"
+                                            || path_str.starts_with("data/avatars/")
+                                            || path_str.starts_with("data/collection_images/")
+                                            || path_str.starts_with("data/covers/")
+                                            || path_str.starts_with("data/gallery/")
+                                            || path_str.starts_with("data/background/")
+                                            || path_str == "data/avatars"
+                                            || path_str == "data/collection_images"
+                                            || path_str == "data/covers"
+                                            || path_str == "data/gallery"
+                                            || path_str == "data/background"
+                                            || path_str == "data";
+
+                                        if !is_allowed {
+                                            tracing::info!("Skipping restore of non-data zip entry: {}", path_str);
+                                            continue;
+                                        }
+
+                                        if file.name().ends_with('/') {
+                                            let _ = std::fs::create_dir_all(&outpath);
+                                        } else {
+                                            if let Some(p) = outpath.parent() {
+                                                let _ = std::fs::create_dir_all(p);
+                                            }
+                                            let mut outfile = match std::fs::File::create(&outpath) {
+                                                Ok(f) => f,
+                                                Err(e) => {
+                                                    unzip_res = Err(format!("Failed to create file: {}", e));
+                                                    break;
+                                                }
+                                            };
+                                            if let Err(e) = std::io::copy(&mut file, &mut outfile) {
+                                                unzip_res = Err(format!("Failed to write file: {}", e));
+                                                break;
+                                            }
+                                        }
                                     }
+                                    unzip_res
                                 }
                                 Err(e) => Err(format!("Invalid Zip: {}", e)),
                             }
