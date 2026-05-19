@@ -147,7 +147,7 @@ pub fn render_editor_view(app: &mut CrapApp, ui: &mut egui::Ui) {
             ui.selectable_value(
                 &mut app.active_char_tab,
                 CharacterTab::SillyTavern,
-                egui::RichText::new("🎭 Silly Tavern").color(egui::Color32::from_rgb(100, 220, 100)),
+                "Silly Tavern",
             );
         });
         ui.separator();
