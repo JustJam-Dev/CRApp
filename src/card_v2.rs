@@ -169,6 +169,11 @@ impl SillyTavernCard {
     pub fn from_character(character: &crate::models::Character) -> Self {
         let now = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         let talkativeness_str = format!("{:.1}", character.st_talkativeness);
+        let card_name = if character.st_name.trim().is_empty() {
+            character.name.clone()
+        } else {
+            character.st_name.clone()
+        };
         let tags: Vec<String> = character
             .app_tags
             .iter()
@@ -177,7 +182,7 @@ impl SillyTavernCard {
             .collect();
 
         SillyTavernCard {
-            name: character.st_name.clone(),
+            name: card_name.clone(),
             description: character.st_description.clone(),
             personality: character.st_personality.clone(),
             scenario: character.st_scenario.clone(),
@@ -191,15 +196,15 @@ impl SillyTavernCard {
             spec: "chara_card_v3".to_string(),
             spec_version: "3.0".to_string(),
             data: SillyTavernCardData {
-                name: character.st_name.clone(),
+                name: card_name,
                 description: character.st_description.clone(),
                 personality: character.st_personality.clone(),
                 scenario: character.st_scenario.clone(),
                 first_mes: character.st_first_mes.clone(),
                 mes_example: character.st_mes_example.clone(),
                 creator_notes: character.st_creator_notes.clone(),
-                system_prompt: character.st_system_prompt.clone(),
-                post_history_instructions: character.st_post_history_instructions.clone(),
+                system_prompt: "".to_string(),
+                post_history_instructions: "".to_string(),
                 tags,
                 creator: character.st_creator.clone(),
                 character_version: character.st_character_version.clone(),

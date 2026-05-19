@@ -28,8 +28,8 @@ pub async fn upsert(pool: &SqlitePool, character: &mut Character) -> Result<(), 
         // INSERT
         let id = sqlx::query(
             "INSERT INTO characters (name, char_name, char_title, personality, scenario, example_dialogue, first_message, author_notes, avatar_path, created_at, updated_at, collection_id, is_favorite, is_nsfw, blur_avatar, spell_check_overrides_json, quick_notes,
-             st_name, st_description, st_personality, st_scenario, st_first_mes, st_mes_example, st_creator_notes, st_system_prompt, st_post_history_instructions, st_alternate_greetings_json, st_creator, st_character_version, st_talkativeness, st_world, st_depth_prompt, st_depth_prompt_depth, st_depth_prompt_role)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+             st_name, st_description, st_personality, st_scenario, st_first_mes, st_mes_example, st_creator_notes, st_alternate_greetings_json, st_creator, st_character_version, st_talkativeness, st_world, st_depth_prompt, st_depth_prompt_depth, st_depth_prompt_role)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
         .bind(&character.name)
         .bind(&character.char_name)
@@ -55,8 +55,6 @@ pub async fn upsert(pool: &SqlitePool, character: &mut Character) -> Result<(), 
         .bind(&character.st_first_mes)
         .bind(&character.st_mes_example)
         .bind(&character.st_creator_notes)
-        .bind(&character.st_system_prompt)
-        .bind(&character.st_post_history_instructions)
         .bind(&character.st_alternate_greetings_json)
         .bind(&character.st_creator)
         .bind(&character.st_character_version)
@@ -74,7 +72,7 @@ pub async fn upsert(pool: &SqlitePool, character: &mut Character) -> Result<(), 
         // UPDATE
         sqlx::query(
             "UPDATE characters SET name=?, char_name=?, char_title=?, personality=?, scenario=?, example_dialogue=?, first_message=?, author_notes=?, avatar_path=?, updated_at=?, collection_id=?, is_favorite=?, is_nsfw=?, blur_avatar=?, spell_check_overrides_json=?, quick_notes=?,
-             st_name=?, st_description=?, st_personality=?, st_scenario=?, st_first_mes=?, st_mes_example=?, st_creator_notes=?, st_system_prompt=?, st_post_history_instructions=?, st_alternate_greetings_json=?, st_creator=?, st_character_version=?, st_talkativeness=?, st_world=?, st_depth_prompt=?, st_depth_prompt_depth=?, st_depth_prompt_role=?
+             st_name=?, st_description=?, st_personality=?, st_scenario=?, st_first_mes=?, st_mes_example=?, st_creator_notes=?, st_alternate_greetings_json=?, st_creator=?, st_character_version=?, st_talkativeness=?, st_world=?, st_depth_prompt=?, st_depth_prompt_depth=?, st_depth_prompt_role=?
              WHERE id=?"
         )
         .bind(&character.name)
@@ -100,8 +98,6 @@ pub async fn upsert(pool: &SqlitePool, character: &mut Character) -> Result<(), 
         .bind(&character.st_first_mes)
         .bind(&character.st_mes_example)
         .bind(&character.st_creator_notes)
-        .bind(&character.st_system_prompt)
-        .bind(&character.st_post_history_instructions)
         .bind(&character.st_alternate_greetings_json)
         .bind(&character.st_creator)
         .bind(&character.st_character_version)

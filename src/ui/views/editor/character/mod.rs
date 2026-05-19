@@ -200,7 +200,7 @@ pub fn render_editor_view(app: &mut CrapApp, ui: &mut egui::Ui) {
                     render_gallery_tab(app, ui, &mut character, &mut status_update);
                 }
                 CharacterTab::SillyTavern => {
-                    render_sillytavern_tab(app, ui, &mut character, &mut status_update);
+                    render_sillytavern_tab(app, ui, &mut character, &mut status_update, &mut tag_add_request, &mut tag_remove_request);
                 }
             });
 

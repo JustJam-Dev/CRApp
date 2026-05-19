@@ -111,9 +111,6 @@ pub struct Character {
     #[sqlx(default)]
     pub st_creator_notes: String,
     #[sqlx(default)]
-    pub st_system_prompt: String,
-    #[sqlx(default)]
-    pub st_post_history_instructions: String,
     pub st_alternate_greetings_json: Option<String>,
     #[sqlx(skip)]
     pub st_alternate_greetings: Vec<String>,
@@ -121,21 +118,17 @@ pub struct Character {
     pub st_creator: String,
     #[sqlx(default)]
     pub st_character_version: String,
-    #[sqlx(default = "default_talkativeness")]
+    #[sqlx(default)]
     pub st_talkativeness: f64,
     #[sqlx(default)]
     pub st_world: String,
     #[sqlx(default)]
     pub st_depth_prompt: String,
-    #[sqlx(default = "default_depth")]
+    #[sqlx(default)]
     pub st_depth_prompt_depth: i64,
-    #[sqlx(default = "default_depth_role")]
+    #[sqlx(default)]
     pub st_depth_prompt_role: String,
 }
-
-fn default_talkativeness() -> f64 { 0.5 }
-fn default_depth() -> i64 { 4 }
-fn default_depth_role() -> String { "system".to_string() }
 
 impl Default for Character {
     fn default() -> Self {
@@ -169,8 +162,6 @@ impl Default for Character {
             st_first_mes: "".to_string(),
             st_mes_example: "".to_string(),
             st_creator_notes: "".to_string(),
-            st_system_prompt: "".to_string(),
-            st_post_history_instructions: "".to_string(),
             st_alternate_greetings_json: None,
             st_alternate_greetings: Vec::new(),
             st_creator: "".to_string(),
@@ -211,8 +202,6 @@ impl Character {
             && self.st_first_mes == other.st_first_mes
             && self.st_mes_example == other.st_mes_example
             && self.st_creator_notes == other.st_creator_notes
-            && self.st_system_prompt == other.st_system_prompt
-            && self.st_post_history_instructions == other.st_post_history_instructions
             && self.st_alternate_greetings == other.st_alternate_greetings
             && self.st_creator == other.st_creator
             && self.st_character_version == other.st_character_version

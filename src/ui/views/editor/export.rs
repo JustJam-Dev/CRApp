@@ -9,7 +9,28 @@ pub fn render_export_menu(ui: &mut egui::Ui, app: &CrapApp, character: &Characte
 
     ui.menu_button("EXPORT", |ui| {
         if on_st_tab {
-            // On SillyTavern tab: only ST export is shown
+            // On SillyTavern tab: export from ST-specific fields only
+            if ui.button("Native (.crapp)").clicked() {
+                app.export_character_native_from_sillytavern(character);
+                ui.close_menu();
+            }
+
+            if ui.button("Character Card - spicychat.ai (.json)").clicked() {
+                app.export_character_v2_json_from_sillytavern(character);
+                ui.close_menu();
+            }
+
+            if ui.button("Document (.md)").clicked() {
+                app.export_character_markdown_from_sillytavern(character);
+                ui.close_menu();
+            }
+
+            if ui.button("Character Card (.png)").clicked() {
+                app.export_character_png_from_sillytavern(character);
+                ui.close_menu();
+            }
+
+            ui.separator();
             if ui.button("🎭 SillyTavern Card V3 (.json)").clicked() {
                 app.export_character_sillytavern(character);
                 ui.close_menu();
@@ -17,7 +38,7 @@ pub fn render_export_menu(ui: &mut egui::Ui, app: &CrapApp, character: &Characte
 
             ui.separator();
             ui.label(
-                egui::RichText::new("Switch to Main Data tab for\nother export formats.")
+                egui::RichText::new("All ST-tab exports pull from\nSillyTavern fields only.")
                     .size(10.0)
                     .color(egui::Color32::GRAY),
             );
