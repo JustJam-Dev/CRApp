@@ -33,6 +33,20 @@ To prevent data loss during updates, the application performs a **Safety Backup*
 
 If a migration fails, the application will panic/crash to prevent partial data corruption, and the user can restore `crap_data.db.bak`.
 
+### Database Import & Export Safety
+
+To ensure maximum data protection during runtime database imports and archive exports (`src/ui/controllers/export_import.rs`), CRApp enforces the following safety protocols:
+
+1. **Pre-Import Checkpoint & Safe Shutdown**: Before starting any import, the active connection pool executes a full WAL checkpoint to ensure all uncommitted transactions are fully flushed to disk. The database pool is then gracefully closed.
+2. **Pre-Import Safety Backup**: A temporary safety backup file `crap_data_backup_YYYYMMDD_HHMMSS.db` is created in the project root.
+3. **Automated Rollback Recovery**: If the unzipping or database copying process fails at any point (e.g. invalid zip structure, partial extracts, disk space exhaustion):
+   - The backup copy is automatically copied back to `crap_data.db` to restore the pre-import state.
+   - A descriptive warning status toast is pushed to the UI to notify the user.
+   - The connection pool is safely re-initialized using the restored original database file.
+4. **Temporary Clutter Prevention**:
+   - **On Success**: The pre-import safety backup file is automatically deleted.
+   - **On Failure Cleanup**: If an export (ZIP or DB export) fails midway or is cancelled, any partial, empty, or incomplete files created at the destination path are automatically cleaned up to keep the filesystem tidy.
+
 ## Schema
 
 ### Characters Table (`characters`)

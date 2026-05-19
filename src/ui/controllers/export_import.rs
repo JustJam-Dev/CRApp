@@ -21,13 +21,22 @@ impl CrapApp {
                 .save_file()
             {
                 let target_str = path.to_string_lossy().to_string();
+                tracing::info!("Starting database-only export to: {}", target_str);
 
                 // Use safe vacuum into
                 match db.create_checkpoint_and_vacuum(&target_str).await {
                     Ok(_) => {
+                        tracing::info!("Database exported successfully to: {}", target_str);
                         let _ = tx.send(UiEvent::DbExportFinished(Ok(target_str))).await;
                     }
                     Err(e) => {
+                        tracing::error!("Database export failed: {}", e);
+                        // Clean up the potentially empty/broken target file if it was created
+                        let target_path = std::path::Path::new(&target_str);
+                        if target_path.exists() {
+                            let _ = std::fs::remove_file(target_path);
+                            tracing::info!("Cleaned up incomplete export file at: {}", target_str);
+                        }
                         let _ = tx
                             .send(UiEvent::DbExportFinished(Err(format!(
                                 "Export Failed: {}",
@@ -36,6 +45,8 @@ impl CrapApp {
                             .await;
                     }
                 }
+            } else {
+                tracing::info!("Database export canceled by user.");
             }
             ctx.request_repaint();
             Ok(())
@@ -59,12 +70,26 @@ impl CrapApp {
                 )
                 .save_file()
             {
+                let zip_path_str = zip_path.to_string_lossy().to_string();
+                tracing::info!("Starting full backup export to: {}", zip_path_str);
+
+                // Helper closure to clean up the zip file on failure
+                let cleanup_zip = || {
+                    let p = std::path::Path::new(&zip_path_str);
+                    if p.exists() {
+                        let _ = std::fs::remove_file(p);
+                        tracing::info!("Cleaned up incomplete ZIP file at: {}", zip_path_str);
+                    }
+                };
+
                 // 1. Create Temp DB Snapshot
                 let temp_db_name = format!("temp_snapshot_{}.db", uuid::Uuid::new_v4());
                 let temp_db_path = std::env::temp_dir().join(&temp_db_name);
                 let temp_db_str = temp_db_path.to_string_lossy().to_string();
 
+                tracing::info!("Creating temporary database snapshot for zip backup...");
                 if let Err(e) = db.create_checkpoint_and_vacuum(&temp_db_str).await {
+                    tracing::error!("Failed to create temporary DB snapshot: {}", e);
                     let _ = tx
                         .send(UiEvent::DbExportFinished(Err(format!(
                             "Snapshot Failed: {}",
@@ -75,16 +100,18 @@ impl CrapApp {
                 }
 
                 // 2. Create Zip
+                tracing::info!("Creating ZIP archive...");
                 let file = match std::fs::File::create(&zip_path) {
                     Ok(f) => f,
                     Err(e) => {
+                        tracing::error!("Failed to create ZIP file at '{}': {}", zip_path_str, e);
                         let _ = tx
                             .send(UiEvent::DbExportFinished(Err(format!(
                                 "Create Zip Failed: {}",
                                 e
                             ))))
                             .await;
-                        // Cleanup
+                        // Cleanup temp db
                         let _ = std::fs::remove_file(&temp_db_path);
                         return Ok(());
                     }
@@ -96,7 +123,9 @@ impl CrapApp {
                     .unix_permissions(0o755);
 
                 // 3. Add DB
+                tracing::info!("Adding database snapshot to ZIP...");
                 if let Err(e) = zip.start_file("crap_data.db", options) {
+                    tracing::error!("Failed to start ZIP entry for crap_data.db: {}", e);
                     let _ = tx
                         .send(UiEvent::DbExportFinished(Err(format!(
                             "Zip DB Add Failed: {}",
@@ -104,11 +133,13 @@ impl CrapApp {
                         ))))
                         .await;
                     let _ = std::fs::remove_file(&temp_db_path);
+                    cleanup_zip();
                     return Ok(());
                 }
 
                 if let Ok(mut f) = std::fs::File::open(&temp_db_path) {
                     if let Err(e) = std::io::copy(&mut f, &mut zip) {
+                        tracing::error!("Failed to copy DB snapshot into ZIP: {}", e);
                         let _ = tx
                             .send(UiEvent::DbExportFinished(Err(format!(
                                 "Zip DB Write Failed: {}",
@@ -116,6 +147,7 @@ impl CrapApp {
                             ))))
                             .await;
                         let _ = std::fs::remove_file(&temp_db_path);
+                        cleanup_zip();
                         return Ok(());
                     }
                 }
@@ -132,6 +164,7 @@ impl CrapApp {
                     std::path::Path::new("data/background"),
                 ];
 
+                tracing::info!("Compressing media and data subdirectories into ZIP...");
                 for subdir in &allowed_subdirs {
                     if subdir.exists() {
                         let walk = walkdir::WalkDir::new(subdir);
@@ -147,16 +180,25 @@ impl CrapApp {
                                     continue;
                                 }
                                 if let Ok(mut f) = std::fs::File::open(path) {
-                                    let _ = std::io::copy(&mut f, &mut zip);
+                                    if let Err(e) = std::io::copy(&mut f, &mut zip) {
+                                        tracing::error!("Failed to copy file '{}' to zip archive: {}", path.display(), e);
+                                        let _ = tx.send(UiEvent::StatusMessage(format!("Failed to copy file {}: {}", name.display(), e), eframe::egui::Color32::RED)).await;
+                                    }
+                                } else {
+                                    tracing::error!("Failed to open file for zipping: {}", path.display());
                                 }
                             } else if path.is_dir() && !name.as_os_str().is_empty() {
-                                let _ = zip.add_directory(name_str, options);
+                                if let Err(e) = zip.add_directory(name_str, options) {
+                                    tracing::warn!("Failed to add directory entry '{}' to zip: {}", path.display(), e);
+                                }
                             }
                         }
                     }
                 }
 
                 if let Err(e) = zip.finish() {
+                    tracing::error!("Failed to finalize ZIP archive: {}", e);
+                    cleanup_zip();
                     let _ = tx
                         .send(UiEvent::DbExportFinished(Err(format!(
                             "Zip Finish Failed: {}",
@@ -164,12 +206,13 @@ impl CrapApp {
                         ))))
                         .await;
                 } else {
+                    tracing::info!("Full backup ZIP export successful: {}", zip_path_str);
                     let _ = tx
-                        .send(UiEvent::DbExportFinished(Ok(zip_path
-                            .to_string_lossy()
-                            .to_string())))
+                        .send(UiEvent::DbExportFinished(Ok(zip_path_str)))
                         .await;
                 }
+            } else {
+                tracing::info!("Full ZIP export canceled by user.");
             }
             ctx.request_repaint();
             Ok(())
@@ -190,8 +233,12 @@ impl CrapApp {
                 .pick_file();
 
             if let Some(path) = path_opt {
+                let path_str = path.to_string_lossy().to_string();
+                tracing::info!("User initiated database import from: {}", path_str);
+
                 // 1. Checkpoint current DB to ensure consistent state on disk
                 if let Err(e) = db.checkpoint().await {
+                    tracing::error!("Pre-import checkpoint failed: {}", e);
                     let _ = tx
                         .send(UiEvent::DbExportFinished(Err(format!(
                             "Pre-import checkpoint failed: {}",
@@ -207,19 +254,22 @@ impl CrapApp {
                 // 3. Create Safety Backup
                 let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
                 let backup_name = format!("crap_data_backup_{}.db", timestamp);
+                tracing::info!("Creating pre-import safety backup at '{}'...", backup_name);
                 if let Err(e) = std::fs::copy("crap_data.db", &backup_name) {
+                    tracing::error!("Failed to create safety backup: {}", e);
                     let _ = tx
                         .send(UiEvent::DbExportFinished(Err(format!(
                             "Auto-Backup Failed! Aborting import. Error: {}",
                             e
                         ))))
                         .await;
-                    // Try to re-init
+                    // Re-init current DB
                     match crate::db::Database::init().await {
                         Ok(new_db) => {
                             let _ = tx.send(UiEvent::DbReloaded(Ok(new_db))).await;
                         }
                         Err(re_e) => {
+                            tracing::error!("Failed to re-initialize original database: {}", re_e);
                             let _ = tx.send(UiEvent::DbReloaded(Err(re_e.to_string()))).await;
                         }
                     }
@@ -235,6 +285,7 @@ impl CrapApp {
 
                 let result = if extension == "zip" {
                     // ZIP IMPORT
+                    tracing::info!("Processing ZIP archive import...");
                     match std::fs::File::open(path.clone()) {
                         Ok(file) => {
                             match zip::ZipArchive::new(file) {
@@ -301,6 +352,7 @@ impl CrapApp {
                     }
                 } else {
                     // DB IMPORT
+                    tracing::info!("Copying SQLite database file directly...");
                     match std::fs::copy(path.clone(), "crap_data.db") {
                         Ok(_) => Ok(()),
                         Err(e) => Err(format!("DB Copy Failed: {}", e)),
@@ -312,27 +364,58 @@ impl CrapApp {
                         // Re-init DB
                         match crate::db::Database::init().await {
                             Ok(new_db) => {
+                                tracing::info!("Database import successfully re-initialized.");
+                                // Clean up the safety backup since import succeeded
+                                if let Err(e) = std::fs::remove_file(&backup_name) {
+                                    tracing::warn!("Failed to remove temporary safety backup '{}': {}", backup_name, e);
+                                } else {
+                                    tracing::info!("Cleaned up temporary safety backup '{}'.", backup_name);
+                                }
                                 let _ = tx.send(UiEvent::DbReloaded(Ok(new_db))).await;
                             }
                             Err(re_e) => {
+                                tracing::error!("Database re-initialization failed after copy: {}", re_e);
                                 let _ = tx.send(UiEvent::DbReloaded(Err(re_e.to_string()))).await;
                             }
                         }
                     }
                     Err(e) => {
-                        let _ = tx.send(UiEvent::DbExportFinished(Err(e))).await;
-                        // Attempt re-init to restore state
+                        tracing::error!("Import failed: {}. Restoring pre-import database from backup...", e);
+                        
+                        // Attempt Rollback
+                        if let Err(restore_err) = std::fs::copy(&backup_name, "crap_data.db") {
+                            tracing::error!("CRITICAL: Rollback failed! Could not restore database from backup '{}': {}", backup_name, restore_err);
+                            let _ = tx
+                                .send(UiEvent::StatusMessage(
+                                    format!("CRITICAL: Import failed and rollback also failed! Please restore your backup manually. Error: {}", restore_err),
+                                    eframe::egui::Color32::RED,
+                                ))
+                                .await;
+                        } else {
+                            tracing::info!("Rollback successful: Restored active database from safety backup '{}'.", backup_name);
+                            let _ = tx
+                                .send(UiEvent::StatusMessage(
+                                    "Import failed! Successfully restored original database state from safety backup.".to_string(),
+                                    eframe::egui::Color32::YELLOW,
+                                ))
+                                .await;
+                        }
+
+                        // Re-init original DB to restore state
                         match crate::db::Database::init().await {
                             Ok(new_db) => {
+                                tracing::info!("Successfully re-initialized original database.");
                                 let _ = tx.send(UiEvent::DbReloaded(Ok(new_db))).await;
                             }
                             Err(re_e) => {
+                                tracing::error!("Failed to re-initialize original database after rollback: {}", re_e);
                                 let _ = tx.send(UiEvent::DbReloaded(Err(re_e.to_string()))).await;
                             }
                         }
                     }
                 }
             } else {
+                tracing::info!("Import canceled by user.");
                 let _ = tx.send(UiEvent::DbReloaded(Ok(db))).await;
             }
             ctx.request_repaint();
