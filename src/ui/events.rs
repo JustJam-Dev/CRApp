@@ -11,8 +11,12 @@ pub fn handle_ui_events(app: &mut CrapApp, ctx: &egui::Context) {
         received_event = true;
         match event {
             UiEvent::AppError(e) => {
-                tracing::error!("Background Task Error: {}", e);
-                app.set_status(format!("System Error: {}", e), egui::Color32::RED);
+                if !app.is_importing {
+                    tracing::error!("Background Task Error: {}", e);
+                    app.set_status(format!("System Error: {}", e), egui::Color32::RED);
+                } else {
+                    tracing::warn!("Ignored background error during DB import: {}", e);
+                }
             }
             UiEvent::CharactersLoaded(res) => match res {
                 Ok(list) => {
@@ -20,8 +24,10 @@ pub fn handle_ui_events(app: &mut CrapApp, ctx: &egui::Context) {
                     app.loading_error = None;
                 }
                 Err(e) => {
-                    tracing::error!("Load error: {}", e);
-                    app.loading_error = Some(e);
+                    if !app.is_importing {
+                        tracing::error!("Load error: {}", e);
+                        app.loading_error = Some(e);
+                    }
                 }
             },
             UiEvent::LorebooksLoaded(res) => match res {
@@ -37,13 +43,17 @@ pub fn handle_ui_events(app: &mut CrapApp, ctx: &egui::Context) {
                     app.lorebooks = books;
                 }
                 Err(e) => {
-                    app.loading_error = Some(e);
+                    if !app.is_importing {
+                        app.loading_error = Some(e);
+                    }
                 }
             },
             UiEvent::CollectionsLoaded(res) => match res {
                 Ok(collections) => app.collections = collections,
                 Err(e) => {
-                    app.loading_error = Some(e);
+                    if !app.is_importing {
+                        app.loading_error = Some(e);
+                    }
                 }
             },
             UiEvent::GalleryImageAdded(path) => {
@@ -90,7 +100,13 @@ pub fn handle_ui_events(app: &mut CrapApp, ctx: &egui::Context) {
             }
             UiEvent::LoreLinksLoaded(res) => match res {
                 Ok(set) => app.lore_links = set,
-                Err(e) => tracing::error!("Link load error: {}", e),
+                Err(e) => {
+                    if !app.is_importing {
+                        tracing::error!("Link load error: {}", e);
+                    } else {
+                        tracing::warn!("Ignored link load error during DB import: {}", e);
+                    }
+                }
             },
             UiEvent::WatermarkLoaded(show) => {
                 app.show_watermark = show;
@@ -555,20 +571,31 @@ pub fn handle_ui_events(app: &mut CrapApp, ctx: &egui::Context) {
                 ),
                 Err(e) => app.set_status(format!("Export Failed: {}", e), egui::Color32::RED),
             },
-            UiEvent::DbReloaded(res) => match res {
-                Ok(new_db) => {
-                    app.db = new_db;
-                    app.set_status(
-                        "Database imported successfully. Reloading view...".to_string(),
-                        egui::Color32::GREEN,
-                    );
-                    app.refresh_all();
-                }
-                Err(e) => {
-                    app.set_status(
-                        format!("CRITICAL: Database Swap Failed: {}", e),
-                        egui::Color32::RED,
-                    );
+            UiEvent::DbReloaded(res) => {
+                app.is_importing = false;
+                match res {
+                    Ok(new_db) => {
+                        app.db = new_db;
+                        
+                        // Clear selected entities to prevent stale/invalid IDs from the old database
+                        app.selected_character = None;
+                        app.selected_lorebook = None;
+                        app.selected_template = None;
+                        app.selected_entry = None;
+                        app.navigation_history.clear();
+
+                        app.set_status(
+                            "Database imported successfully. Reloading view...".to_string(),
+                            egui::Color32::GREEN,
+                        );
+                        app.refresh_all();
+                    }
+                    Err(e) => {
+                        app.set_status(
+                            format!("CRITICAL: Database Swap Failed: {}", e),
+                            egui::Color32::RED,
+                        );
+                    }
                 }
             },
 

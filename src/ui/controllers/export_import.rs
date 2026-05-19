@@ -173,13 +173,14 @@ impl CrapApp {
         let tx = self.tx.clone();
         let ctx = self.ctx.clone();
         crate::task::spawn_supervised(ctx.clone(), async move {
-            if let Some(path) = rfd::FileDialog::new()
+            let path_opt = rfd::FileDialog::new()
                 .set_title("Import Data")
                 .add_filter("All Supported", &["db", "sqlite", "sqlite3", "zip"])
                 .add_filter("Database Files", &["db", "sqlite", "sqlite3"])
                 .add_filter("Zip Backups", &["zip"])
-                .pick_file()
-            {
+                .pick_file();
+
+            if let Some(path) = path_opt {
                 // 1. Checkpoint current DB to ensure consistent state on disk
                 if let Err(e) = db.checkpoint().await {
                     let _ = tx
@@ -273,6 +274,8 @@ impl CrapApp {
                         }
                     }
                 }
+            } else {
+                let _ = tx.send(UiEvent::DbReloaded(Ok(db))).await;
             }
             ctx.request_repaint();
             Ok(())

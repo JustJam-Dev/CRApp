@@ -53,6 +53,7 @@ pub struct CrapApp {
 
     pub popup_state: PopupState,
     pub is_saving: bool,
+    pub is_importing: bool,
     pub status_message: Option<(String, egui::Color32)>,
     pub status_clear_time: Option<Instant>,
     pub loading_error: Option<String>,
@@ -181,6 +182,7 @@ impl CrapApp {
             selected_collection_id: None,
             popup_state: PopupState::None,
             is_saving: false,
+            is_importing: false,
             status_message: None,
             status_clear_time: None,
             loading_error: None,

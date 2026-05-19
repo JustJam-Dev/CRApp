@@ -22,6 +22,7 @@ pub fn render_import_export_popups(ctx: &egui::Context, app: &mut CrapApp, state
 
                     ui.horizontal(|ui| {
                         if ui.button("Yes, Import").clicked() {
+                            app.is_importing = true;
                             app.trigger_db_import();
                             app.popup_state = super::PopupState::None;
                         }
