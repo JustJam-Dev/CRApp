@@ -5,6 +5,13 @@ echo "🚀 Starting deployment..."
 
 VERSION=$1
 
+# Get current git branch
+BRANCH=$(git branch --show-current)
+if [[ -z "$BRANCH" ]]; then
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+fi
+echo "🌿 Current branch: $BRANCH"
+
 # 1. Handle version argument (optional)
 if [[ -n "$VERSION" ]]; then
     # Validate semantic version format (x.y.z)
@@ -51,15 +58,15 @@ if [[ -n $(git status -s) ]]; then
         git commit -m "chore: deploy latest build"
     fi
     echo "⬇️ Pulling latest changes..."
-    git pull --rebase origin main
-    echo "⬆️ Pushing to main..."
-    git push origin main
+    git pull --rebase origin $BRANCH
+    echo "⬆️ Pushing to $BRANCH..."
+    git push origin $BRANCH
 else
     echo "✅ No changes to commit."
     echo "⬇️ Pulling latest changes..."
-    git pull --rebase origin main
-    echo "⬆️ Pushing to main..."
-    git push origin main
+    git pull --rebase origin $BRANCH
+    echo "⬆️ Pushing to $BRANCH..."
+    git push origin $BRANCH
 fi
 
 # 5. Manage GitHub Release
@@ -91,7 +98,7 @@ if [[ -n "$VERSION" ]]; then
         "$ZIP_NAME#$ZIP_NAME" \
         --title "v$VERSION" \
         --notes-file - \
-        --target main
+        --target $BRANCH
     echo "✅ Version v$VERSION published!"
 fi
 
@@ -110,7 +117,7 @@ echo "Auto-generated release from local build." | gh release create latest \
     --title "Latest Build" \
     --notes-file - \
     --prerelease \
-    --target main
+    --target $BRANCH
 
 echo "✅ Deployment complete!"
 if [[ -n "$VERSION" ]]; then
