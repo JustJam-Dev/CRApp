@@ -135,13 +135,16 @@ pub fn render_editor_view(app: &mut CrapApp, ui: &mut egui::Ui) {
             ui.selectable_value(
                 &mut app.active_char_tab,
                 CharacterTab::MainData,
-                "Main Data",
+                "Online Format",
             );
             ui.selectable_value(
                 &mut app.active_char_tab,
                 CharacterTab::SillyTavern,
                 "Silly Tavern",
             );
+            ui.add_space(8.0);
+            ui.separator();
+            ui.add_space(8.0);
             ui.selectable_value(&mut app.active_char_tab, CharacterTab::Notes, "Notes");
             ui.selectable_value(
                 &mut app.active_char_tab,

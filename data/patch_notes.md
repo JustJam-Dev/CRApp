@@ -5,6 +5,9 @@
 - **SillyTavern PNG Character Card Exporter**: Re-engineered low-level PNG chunk writing in the export pipeline. Clicking export writes the SillyTavern card V3 data as Base64 encoded payload into standard-compliant PNG `tEXt` chunks (`chara` and `ccv3` keywords) within the character's avatar image, making exported cards fully compatible with SillyTavern and other third-party frontends.
 - **Revert Changes**: Added an optional "↺ REVERT" button to the character editor toolbar. When modifying an existing character in a dirty state, clicking this button opens a confirmation popup window allowing the user to safely discard all unsaved edits and restore the character to its last saved configuration.
 
+## UI Refinements
+- **Editor Tab Grouping & Labeling**: Changed the "Main Data" button label in the character editor to "Online Format". Additionally, grouped the "Online Format" and "Silly Tavern" tabs separately from "Notes", "Lorebooks", and "Gallery" using a vertical separator and horizontal spacing for a cleaner structure.
+
 ## Architectural Improvements
 - **Database Schema Expansion**: Automatically upgrades existing user databases during initialization, adding 13 new SillyTavern-specific metadata fields to the SQLite database schema while ensuring complete backward-compatibility and zero data loss.
 - **Database Import Stability**: Implemented a robust synchronization lock state and cache-invalidation handler that prevents connection pool race conditions ("attempted to acquire a connection on a closed pool" errors) during database imports or ZIP restorations. Silences background query failures during transit and invalidates selections and navigation history to prevent mismatched key references once the new database schema loads.
