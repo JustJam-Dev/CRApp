@@ -15,6 +15,7 @@
 
 ## Bug Fixes
 - **Tag Layout Wrapping**: Fixed an issue where a large number of tags would overflow horizontally past the editor boundaries, pushing and clipping right-hand elements (such as buttons, notes, and the picture panel). Tags are now dynamically measured and wrapped cleanly across multiple lines.
+- **SpicyChat Lorebook Import**: Fixed an issue where SpicyChat's updated web page structure (specifically transition to line-clamp-1 classes and inline -webkit-line-clamp styles) prevented the importer from detecting lorebook entries. The parser has been updated to be much more resilient to Tailwind class variations and inline styles, restoring full compatibility.
 
 # Version 0.2.4 - Patch Notes
 

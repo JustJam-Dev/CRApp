@@ -394,3 +394,102 @@ fn test_parse_spicychat_lorebook_profile_view() {
     );
     assert_eq!(parsed.entries[0].content, "Profile Content 1");
 }
+
+#[test]
+fn test_parse_spicychat_lorebook_new_format() {
+    let html = r#"
+<html class="js-focus-visible dark" data-js-focus-visible="" style="color-scheme: dark; --announcekit-bar-height: 0px;">
+<head><title>My Lorebooks – View and Manage Your AI Lore | Spicychat</title></head>
+<body>
+    <div class="px-3 mob:px-4 mob:pt-4" style="width: 100%; display: flex; flex-direction: column; margin-left: auto; max-width: 1580px; margin-right: auto; flex-grow: 1;">
+        <div class="flex flex-col gap-lg">
+            <div class="w-full mx-auto max-w-[750px]">
+                <div class="flex justify-undefined items-undefined gap-5 flex-col sm:flex-row mt-md">
+                    <img alt="avatar image" src="https://cdn.nd-api.com/avatars/ff46bdb34ee22332ad1c4049b29dea65.png?class=avatar640x640" class="object-cover cursor-pointer w-full aspect-[3/4] mob:w-[183px] mob:h-[244px] object-cover rounded-md">
+                    <div class="flex justify-undefined items-undefined flex-col gap-5">
+                        <div class="flex flex-col justify-undefined items-undefined gap-1 w-full">
+                            <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-mobile-heading-3 font-bold text-left">Test Lorebook #01</p>
+                            <a class="text-link" aria-label="creator-profile" href="/creator/justjam"><p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-lg font-regular text-left"> @justjam</p></a>
+                        </div>
+                        <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-lg font-regular text-left">Test description </p>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full mx-auto max-w-[750px] bg-gray-1 dark:bg-gray-3 rounded-lg p-3 md:p-4 border border-solid border-gray-5">
+                <div class="flex justify-between max-mob:flex-col ">
+                    <div class="flex items-center gap-sm">
+                        <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-heading-5 font-bold text-left flex gap-sm items-center">Entries</p>
+                    </div>
+                </div>
+                <div class="py-xl flex flex-col gap-5">
+                    <div class="flex flex-col">
+                        <button type="button" class="w-full flex items-start justify-between rounded-lg cursor-pointer transition-colors duration-200 bg-transparent border border-solid border-transparent gap-2 py-md px-[13px] min-h-auto hover:bg-gray-4">
+                            <div class="flex items-start gap-md flex-1">
+                                <div class="flex flex-col min-w-0 flex-1 gap-0.5">
+                                    <div class="flex gap-2 w-full">
+                                        <div data-tooltip-id=":rqk:" data-tooltip-max-width="200px" data-tooltip-content="Example entry 1" data-tooltip-place="top" data-tooltip-float="false" class="inline-flex">
+                                            <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-md font-regular text-left text-gray-12 line-clamp-1">Example entry 1</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-sm font-regular text-left text-gray-11 line-clamp-1">keyword_example1, keyword2_example1, another_keyword</p>
+                                    </div>
+                                    <div class="w-fit">
+                                        <div data-tooltip-id=":rql:" data-tooltip-max-width="200px" data-tooltip-content="Lorem ipsum dolor sit..." class="inline-flex">
+                                            <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-sm font-regular text-left" style="display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 2; text-overflow: ellipsis;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qu</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </button>
+                        <button type="button" class="w-full flex items-start justify-between rounded-lg cursor-pointer transition-colors duration-200 bg-transparent border border-solid border-transparent gap-2 py-md px-[13px] min-h-auto hover:bg-gray-4">
+                            <div class="flex items-start gap-md flex-1">
+                                <div class="flex flex-col min-w-0 flex-1 gap-0.5">
+                                    <div class="flex gap-2 w-full">
+                                        <div data-tooltip-id=":rqm:" data-tooltip-max-width="200px" data-tooltip-content="Example entry 2" data-tooltip-place="top" data-tooltip-float="false" class="inline-flex">
+                                            <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-md font-regular text-left text-gray-12 line-clamp-1">Example entry 2</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-sm font-regular text-left text-gray-11 line-clamp-1">2example_keyword, another_keyword</p>
+                                    </div>
+                                    <div class="w-fit">
+                                        <div data-tooltip-id=":rqn:" data-tooltip-max-width="200px" data-tooltip-content="rspiciatis..." class="inline-flex">
+                                            <p class="font-sans text-decoration-skip-ink-none text-underline-position-from-font text-label-sm font-regular text-left" style="display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 2; text-overflow: ellipsis;">rspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+"#;
+
+    let parsed = parse_spicychat_lorebook(html);
+
+    assert_eq!(parsed.title, "Test Lorebook #01");
+    assert_eq!(parsed.description, "Test description");
+    assert_eq!(parsed.entries.len(), 2);
+
+    let entry1 = &parsed.entries[0];
+    assert_eq!(entry1.name, "Example entry 1");
+    assert_eq!(
+        entry1.keywords,
+        vec!["keyword_example1", "keyword2_example1", "another_keyword"]
+    );
+    assert!(entry1.content.contains("Lorem ipsum dolor sit amet"));
+
+    let entry2 = &parsed.entries[1];
+    assert_eq!(entry2.name, "Example entry 2");
+    assert_eq!(
+        entry2.keywords,
+        vec!["2example_keyword", "another_keyword"]
+    );
+    assert!(entry2.content.contains("rspiciatis unde omnis"));
+}
+

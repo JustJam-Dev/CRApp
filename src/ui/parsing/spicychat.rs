@@ -49,8 +49,12 @@ fn parse_spicychat_lorebook_entries(html: &str) -> Vec<ParsedLorebookEntry> {
         let mut found_any = false;
 
         // Optimization: Quick check if this region is actually an entry
-        // Entries usually have "line-clamp-2" for name or content. Navigation buttons do NOT.
-        if !entry_region.contains("line-clamp-2") {
+        // Entries usually have "line-clamp-2", "line-clamp-1", or "-webkit-line-clamp" style/class.
+        // Navigation buttons do NOT.
+        if !entry_region.contains("line-clamp-2")
+            && !entry_region.contains("line-clamp-1")
+            && !entry_region.contains("-webkit-line-clamp")
+        {
             continue;
         }
 
@@ -59,19 +63,15 @@ fn parse_spicychat_lorebook_entries(html: &str) -> Vec<ParsedLorebookEntry> {
             found_any = true;
         }
 
-        if let Some(kws) = extract_spicychat_text(entry_region, "text-gray-11 line-clamp-1", "</p>")
-        {
+        // Keywords usually use "text-gray-11" color class.
+        if let Some(kws) = extract_spicychat_text(entry_region, "text-gray-11", "</p>") {
             entry.keywords = kws.split(',').map(|s| s.trim().to_string()).collect();
         }
 
-        // Content sometimes has style attribute with line-clamp
-        if let Some(_content_idx) = entry_region.find("-webkit-line-clamp: 2") {
-            // We need to find the closes closing tag after this style declaration?
-            // Actually extract_text helper searches for '>' after marker.
-            // The marker is inside the style attribute.
-            // <p ... style="... -webkit-line-clamp: 2 ...">CONTENT</p>
+        // Content sometimes has style attribute with line-clamp (e.g. -webkit-line-clamp: 2)
+        if let Some(_content_idx) = entry_region.find("-webkit-line-clamp") {
             if let Some(content) =
-                extract_spicychat_text(entry_region, "-webkit-line-clamp: 2", "</p>")
+                extract_spicychat_text(entry_region, "-webkit-line-clamp", "</p>")
             {
                 entry.content = content;
             }
