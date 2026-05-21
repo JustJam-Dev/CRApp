@@ -12,6 +12,7 @@
 ## Architectural Improvements
 - **Database Schema Expansion**: Automatically upgrades existing user databases during initialization, adding 13 new SillyTavern-specific metadata fields to the SQLite database schema while ensuring complete backward-compatibility and zero data loss.
 - **Database Import Stability**: Implemented a robust synchronization lock state and cache-invalidation handler that prevents connection pool race conditions ("attempted to acquire a connection on a closed pool" errors) during database imports or ZIP restorations. Silences background query failures during transit and invalidates selections and navigation history to prevent mismatched key references once the new database schema loads.
+- **Pre-Import Safety Backup Auto-Cleanup**: Resolved an issue where temporary pre-import database safety backup files (`crap_data_backup_*.db`) would accumulate in the project root after failed imports. The application now automatically deletes these safety backups upon a successful rollback and database re-initialization, keeping the directory clean while preserving the file only in the extreme case of a double-fault (when the rollback itself fails).
 
 ## Bug Fixes
 - **Tag Layout Wrapping**: Fixed an issue where a large number of tags would overflow horizontally past the editor boundaries, pushing and clipping right-hand elements (such as buttons, notes, and the picture panel). Tags are now dynamically measured and wrapped cleanly across multiple lines.

@@ -43,9 +43,10 @@ To ensure maximum data protection during runtime database imports and archive ex
    - The backup copy is automatically copied back to `crap_data.db` to restore the pre-import state.
    - A descriptive warning status toast is pushed to the UI to notify the user.
    - The connection pool is safely re-initialized using the restored original database file.
-4. **Temporary Clutter Prevention**:
-   - **On Success**: The pre-import safety backup file is automatically deleted.
-   - **On Failure Cleanup**: If an export (ZIP or DB export) fails midway or is cancelled, any partial, empty, or incomplete files created at the destination path are automatically cleaned up to keep the filesystem tidy.
+4. **Temporary Clutter Prevention & Cleanup**:
+   - **On Success**: The pre-import safety backup file is automatically deleted once the new database is successfully initialized.
+   - **On Rollback**: If the import fails but the rollback successfully restores the original database state and re-initializes it, the pre-import safety backup is also cleaned up to prevent directory clutter. (It is only kept if the rollback itself or the database initialization fails, as a critical recovery fallback.)
+   - **On Failure/Cancellation**: If an export (ZIP or DB export) fails midway or is cancelled, any partial, empty, or incomplete files created at the destination path are automatically cleaned up to keep the filesystem tidy.
 
 ## Schema
 

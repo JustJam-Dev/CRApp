@@ -405,6 +405,12 @@ impl CrapApp {
                         match crate::db::Database::init().await {
                             Ok(new_db) => {
                                 tracing::info!("Successfully re-initialized original database.");
+                                // Clean up the safety backup since rollback succeeded and database is active
+                                if let Err(e) = std::fs::remove_file(&backup_name) {
+                                    tracing::warn!("Failed to remove temporary safety backup '{}' after rollback: {}", backup_name, e);
+                                } else {
+                                    tracing::info!("Cleaned up temporary safety backup '{}' after rollback.", backup_name);
+                                }
                                 let _ = tx.send(UiEvent::DbReloaded(Ok(new_db))).await;
                             }
                             Err(re_e) => {
