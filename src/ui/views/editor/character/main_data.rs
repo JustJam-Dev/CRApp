@@ -414,30 +414,38 @@ pub fn render_main_data_tab(
                                     .strong()
                                     .color(egui::Color32::from_rgb(100, 150, 255)),
                             );
-                            ui.horizontal(|ui| {
+                            ui.horizontal_wrapped(|ui| {
                                 let mut app_tags_sorted: Vec<_> =
                                     character.app_tags.iter().collect();
                                 app_tags_sorted.sort_by(|a, b| {
                                     a.name.to_lowercase().cmp(&b.name.to_lowercase())
                                 });
                                 for tag in app_tags_sorted {
-                                    egui::Frame::none()
-                                        .fill(egui::Color32::from_rgb(50, 80, 150))
-                                        .rounding(12.0)
-                                        .inner_margin(4.0)
-                                        .show(ui, |ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.label(
-                                                    egui::RichText::new(&tag.name)
-                                                        .color(egui::Color32::WHITE)
-                                                        .size(12.0),
-                                                );
-                                                if ui.small_button("x").clicked() {
-                                                    *tag_remove_request =
-                                                        Some((character.id, tag.id, false));
-                                                }
+                                    let text_galley = ui.painter().layout_no_wrap(
+                                        tag.name.clone(),
+                                        egui::FontId::proportional(12.0),
+                                        egui::Color32::WHITE,
+                                    );
+                                    let chip_width = text_galley.rect.width() + 32.0;
+                                    ui.allocate_ui(egui::vec2(chip_width, 22.0), |ui| {
+                                        egui::Frame::none()
+                                            .fill(egui::Color32::from_rgb(50, 80, 150))
+                                            .rounding(12.0)
+                                            .inner_margin(4.0)
+                                            .show(ui, |ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.label(
+                                                        egui::RichText::new(&tag.name)
+                                                            .color(egui::Color32::WHITE)
+                                                            .size(12.0),
+                                                    );
+                                                    if ui.small_button("x").clicked() {
+                                                        *tag_remove_request =
+                                                            Some((character.id, tag.id, false));
+                                                    }
+                                                });
                                             });
-                                        });
+                                    });
                                 }
                             });
                             ui.horizontal(|ui| {
@@ -462,30 +470,38 @@ pub fn render_main_data_tab(
                                     .strong()
                                     .color(egui::Color32::GRAY),
                             );
-                            ui.horizontal(|ui| {
+                            ui.horizontal_wrapped(|ui| {
                                 let mut ext_tags_sorted: Vec<_> =
                                     character.external_tags.iter().collect();
                                 ext_tags_sorted.sort_by(|a, b| {
                                     a.name.to_lowercase().cmp(&b.name.to_lowercase())
                                 });
                                 for tag in ext_tags_sorted {
-                                    egui::Frame::none()
-                                        .fill(egui::Color32::from_gray(80))
-                                        .rounding(12.0)
-                                        .inner_margin(4.0)
-                                        .show(ui, |ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.label(
-                                                    egui::RichText::new(&tag.name)
-                                                        .color(egui::Color32::WHITE)
-                                                        .size(12.0),
-                                                );
-                                                if ui.small_button("x").clicked() {
-                                                    *tag_remove_request =
-                                                        Some((character.id, tag.id, true));
-                                                }
+                                    let text_galley = ui.painter().layout_no_wrap(
+                                        tag.name.clone(),
+                                        egui::FontId::proportional(12.0),
+                                        egui::Color32::WHITE,
+                                    );
+                                    let chip_width = text_galley.rect.width() + 32.0;
+                                    ui.allocate_ui(egui::vec2(chip_width, 22.0), |ui| {
+                                        egui::Frame::none()
+                                            .fill(egui::Color32::from_gray(80))
+                                            .rounding(12.0)
+                                            .inner_margin(4.0)
+                                            .show(ui, |ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.label(
+                                                        egui::RichText::new(&tag.name)
+                                                            .color(egui::Color32::WHITE)
+                                                            .size(12.0),
+                                                    );
+                                                    if ui.small_button("x").clicked() {
+                                                        *tag_remove_request =
+                                                            Some((character.id, tag.id, true));
+                                                    }
+                                                });
                                             });
-                                        });
+                                    });
                                 }
                             });
                             ui.horizontal(|ui| {

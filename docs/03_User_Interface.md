@@ -69,7 +69,7 @@ Handles the detailed editing interfaces.
     -   **Avatars**: Image preview, clipboard pasting, file browsing.
     -   **Configurable Appearance**: Respects user-defined font size and brightness settings from the Options window for all text fields.
     -   **Spellcheck & Context Menu Corrections**: Real-time spellchecking underlines misspelled words in red. Right-clicking a misspelled word in any text editor provides up to 5 correction suggestions, replacing the word instantly without disrupting layout or cursor positioning.
-    -   **Tags**: Management of App and External tags.
+    -   **Tags**: Management of App and External tags. Now features dynamic wrapping using pre-measured child allocations (`allocate_ui`), preventing tags from overflowing and clipping right-hand panels.
     -   **Lorebooks**: Selection of linked lorebooks with "Go to Lorebook" navigation button.
     -   **Navigation**: "Back" and "Up" buttons with **Unsaved Changes Protection**.
         -   **History Context Menu**: Right-clicking the "Back" button opens a menu of the navigation stack, allowing jumping to specific past states.

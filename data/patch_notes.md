@@ -9,6 +9,9 @@
 - **Database Schema Expansion**: Automatically upgrades existing user databases during initialization, adding 13 new SillyTavern-specific metadata fields to the SQLite database schema while ensuring complete backward-compatibility and zero data loss.
 - **Database Import Stability**: Implemented a robust synchronization lock state and cache-invalidation handler that prevents connection pool race conditions ("attempted to acquire a connection on a closed pool" errors) during database imports or ZIP restorations. Silences background query failures during transit and invalidates selections and navigation history to prevent mismatched key references once the new database schema loads.
 
+## Bug Fixes
+- **Tag Layout Wrapping**: Fixed an issue where a large number of tags would overflow horizontally past the editor boundaries, pushing and clipping right-hand elements (such as buttons, notes, and the picture panel). Tags are now dynamically measured and wrapped cleanly across multiple lines.
+
 # Version 0.2.4 - Patch Notes
 
 ## New functions
