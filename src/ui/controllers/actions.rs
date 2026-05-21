@@ -181,7 +181,7 @@ impl CrapApp {
                 let current_ids: HashSet<i64> = lorebook
                     .entries
                     .iter()
-                    .filter(|e| e.id != 0)
+                    .filter(|e| e.id > 0)
                     .map(|e| e.id)
                     .collect();
 
@@ -195,7 +195,7 @@ impl CrapApp {
             let mut updated_entries = Vec::new();
             for entry in &mut lorebook.entries {
                 entry.lorebook_id = lid; // Ensure consistency
-                let new_id = if entry.id == 0 {
+                let new_id = if entry.id <= 0 {
                     db.add_entry_to_lorebook(entry).await?
                 } else {
                     db.update_lorebook_entry(entry).await?;

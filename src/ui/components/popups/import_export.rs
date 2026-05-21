@@ -350,8 +350,9 @@ fn render_lorebook_import(
             lorebook.description = data.description.clone();
             lorebook.content = data.description;
 
-            lorebook.entries = data.entries.into_iter().map(|e| {
+            lorebook.entries = data.entries.into_iter().enumerate().map(|(idx, e)| {
                 crate::models::LorebookEntry {
+                    id: -(idx as i64 + 1), // Assign temporary negative ID to prevent UI collision before saving
                     lorebook_id: lorebook.id,
                     name: e.name,
                     keywords: e.keywords.join(", "),
