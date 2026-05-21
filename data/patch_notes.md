@@ -6,6 +6,7 @@
 - **Revert Changes**: Added an optional "↺ REVERT" button to the character editor toolbar. When modifying an existing character in a dirty state, clicking this button opens a confirmation popup window allowing the user to safely discard all unsaved edits and restore the character to its last saved configuration.
 
 ## UI Refinements
+- **SillyTavern Data Copy**: Moved the "Copy Main Data to SillyTavern" button from the top editor toolbar directly into the "Silly Tavern" tab horizontal sub-bar. Renamed the button to `"Copy data from Online Format"`, added a clean delimiter separating it from the `"Main"` and `"Advanced"` sub-tabs, and styled it as a standard gray action button.
 - **Editor Tab Grouping & Labeling**: Changed the "Main Data" button label in the character editor to "Online Format". Additionally, grouped the "Online Format" and "Silly Tavern" tabs separately from "Notes", "Lorebooks", and "Gallery" using a vertical separator and horizontal spacing for a cleaner structure.
 - **Sidebar Folder Navigation**: Decoupled folder expansion/collapse from explorator navigation. Clicking a folder's name now strictly opens/selects it in the central browser view without changing its expansion state on the sidebar, while clicking the arrow icon strictly toggles the expansion state of the folder in the sidebar tree. Additionally, quick double-clicking on the folder name will toggle the folder's expansion state on the sidebar, preserving ease of navigation.
 

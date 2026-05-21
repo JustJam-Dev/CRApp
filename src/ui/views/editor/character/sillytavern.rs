@@ -22,6 +22,37 @@ pub fn render_sillytavern_tab(
     ui.horizontal(|ui| {
         ui.selectable_value(&mut app.active_st_tab, StTab::Main, "Main");
         ui.selectable_value(&mut app.active_st_tab, StTab::Advanced, "Advanced");
+
+        ui.add_space(8.0);
+        ui.separator();
+        ui.add_space(8.0);
+
+        let copy_btn = egui::Button::new("Copy data from Online Format");
+
+        if ui
+            .add(copy_btn)
+            .on_hover_text(
+                "Copies Main Data into the matching SillyTavern fields. This overwrites those ST fields.",
+            )
+            .clicked()
+        {
+            let st_name = if character.char_name.trim().is_empty() {
+                character.name.clone()
+            } else {
+                character.char_name.clone()
+            };
+
+            character.st_name = st_name;
+            character.st_first_mes = character.first_message.clone();
+            character.st_description = character.personality.clone();
+            character.st_scenario = character.scenario.clone();
+            character.st_mes_example = character.example_dialogue.clone();
+
+            *status_update = Some((
+                "Copied data from Online Format to SillyTavern fields".to_string(),
+                egui::Color32::GREEN,
+            ));
+        }
     });
     ui.separator();
 
