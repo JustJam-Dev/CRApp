@@ -144,6 +144,22 @@ pub fn render_options_window(app: &mut CrapApp, ctx: &egui::Context) {
                             }
                         });
 
+                        ui.add_space(4.0);
+
+                        ui.horizontal(|ui| {
+                            ui.label("Blur Mode:");
+                            let mut selected_mode = app.blur_mode;
+                            egui::ComboBox::from_id_source("blur_mode_combo")
+                                .selected_text(selected_mode.to_string())
+                                .show_ui(ui, |ui| {
+                                    for mode in &[crate::models::BlurMode::FullBlur, crate::models::BlurMode::Simple, crate::models::BlurMode::Pixelize] {
+                                        if ui.selectable_value(&mut selected_mode, *mode, mode.to_string()).changed() {
+                                            app.set_blur_mode(*mode);
+                                        }
+                                    }
+                                });
+                        });
+
                         ui.add_space(8.0);
 
                         // Scale

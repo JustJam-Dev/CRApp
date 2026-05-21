@@ -40,6 +40,7 @@ pub fn render_lorebook_characters(app: &mut CrapApp, ui: &mut egui::Ui, book: &L
                             &mut browser_actions,
                             app.blur_all_images,
                             app.blur_all_nsfw,
+                            app.blur_mode,
                             &app.blur_overrides,
                         );
                     }

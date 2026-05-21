@@ -49,6 +49,41 @@ impl std::str::FromStr for ThemeMode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BlurMode {
+    FullBlur,
+    Simple,
+    Pixelize,
+}
+
+impl Default for BlurMode {
+    fn default() -> Self {
+        BlurMode::FullBlur
+    }
+}
+
+impl std::fmt::Display for BlurMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BlurMode::FullBlur => write!(f, "Full Blur"),
+            BlurMode::Simple => write!(f, "Simple"),
+            BlurMode::Pixelize => write!(f, "Pixelize"),
+        }
+    }
+}
+
+impl std::str::FromStr for BlurMode {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Simple" => Ok(BlurMode::Simple),
+            "Pixelize" => Ok(BlurMode::Pixelize),
+            _ => Ok(BlurMode::FullBlur),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpellcheckLanguage {
     EnUS,
     EnGB,

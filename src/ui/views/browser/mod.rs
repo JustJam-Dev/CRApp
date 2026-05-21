@@ -465,6 +465,7 @@ pub fn render_browser_view(app: &mut CrapApp, ui: &mut egui::Ui) {
                                 &mut actions,
                                 app.blur_all_images,
                                 app.blur_all_nsfw,
+                                app.blur_mode,
                                 &app.blur_overrides,
                             );
                         }
@@ -562,9 +563,7 @@ pub fn render_browser_view(app: &mut CrapApp, ui: &mut egui::Ui) {
                                                 }
                                             });
 
-                                            // Avatar Painting
-                                            if let Some(path_str) = &char.avatar_path {
-                                                let uri = crate::ui::utils::get_image_uri(path_str);
+                                                                        if let Some(path_str) = &char.avatar_path {
                                                 let base_blur = app.blur_all_images
                                                     || (app.blur_all_nsfw && char.is_nsfw)
                                                     || char.blur_avatar;
@@ -576,11 +575,21 @@ pub fn render_browser_view(app: &mut CrapApp, ui: &mut egui::Ui) {
                                                     base_blur
                                                 };
 
+                                                let uri = if should_blur && app.blur_mode != crate::models::BlurMode::FullBlur {
+                                                    if let Some(processed) = crate::ui::utils::get_processed_avatar(path_str, app.blur_mode) {
+                                                        crate::ui::utils::get_image_uri(&processed)
+                                                    } else {
+                                                        crate::ui::utils::get_image_uri(path_str)
+                                                    }
+                                                } else {
+                                                    crate::ui::utils::get_image_uri(path_str)
+                                                };
+
                                                 crate::ui::widgets::paint_avatar_crop(
                                                     ui, rect, &uri, 4.0,
                                                 );
 
-                                                if should_blur {
+                                                if should_blur && app.blur_mode == crate::models::BlurMode::FullBlur {
                                                     ui.painter().rect_filled(
                                                         rect,
                                                         4.0,

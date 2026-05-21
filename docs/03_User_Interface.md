@@ -35,6 +35,10 @@ A dedicated modal window for application-wide settings.
     -   **Theme**: Toggle Light/Dark/System theme.
     -   **UI Scale**: Adjust global UI scaling.
     -   **Background**: Toggle custom background image and file picker integration.
+    -   **Content Blur**: Select character obfuscation style when content blurring is active:
+        -   **Full Blur** (Default): High-contrast solid black overlay with clear "NSFW" / "BLURRED" text.
+        -   **Simple**: Classic, soft Gaussian blur filter applied dynamically to the avatar.
+        -   **Pixelize**: Retro, 16-bit blocky pixelization filter.
     -   **Updates**: Check for application updates and view **Patch Notes**.
 -   **Patch Notes**:
     -   Displays version-specific updates using a custom markdown renderer.

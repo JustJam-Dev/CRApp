@@ -184,7 +184,6 @@ fn render_st_avatar_panel(
     ui.label("Avatar");
 
     if let Some(path_str) = character.avatar_path.clone() {
-        let uri = crate::ui::utils::get_image_uri(&path_str);
         let preview_width = ui.available_width() - 8.0;
 
         let base_blur = app.blur_all_images
@@ -196,6 +195,16 @@ fn render_st_avatar_panel(
             base_blur
         };
 
+        let uri = if should_blur && app.blur_mode != crate::models::BlurMode::FullBlur {
+            if let Some(processed) = crate::ui::utils::get_processed_avatar(&path_str, app.blur_mode) {
+                crate::ui::utils::get_image_uri(&processed)
+            } else {
+                crate::ui::utils::get_image_uri(&path_str)
+            }
+        } else {
+            crate::ui::utils::get_image_uri(&path_str)
+        };
+
         let response = ui.add(
             egui::Image::new(&uri)
                 .rounding(egui::Rounding::same(4.0))
@@ -203,7 +212,7 @@ fn render_st_avatar_panel(
                 .sense(egui::Sense::click()),
         );
 
-        if should_blur {
+        if should_blur && app.blur_mode == crate::models::BlurMode::FullBlur {
             ui.painter().rect_filled(response.rect, 4.0, egui::Color32::from_black_alpha(255));
             ui.painter().text(
                 response.rect.center(),

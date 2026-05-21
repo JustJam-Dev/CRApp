@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::models::{Character, Collection, DeepSearchResult, Lorebook, Tag, Template, ThemeMode, SpellcheckLanguage};
+use crate::models::{Character, Collection, DeepSearchResult, Lorebook, Tag, Template, ThemeMode, SpellcheckLanguage, BlurMode};
 use eframe::egui;
 use std::collections::{HashMap, HashSet};
 
@@ -210,6 +210,7 @@ pub enum UiEvent {
     CheckUpdatesAtStartLoaded(bool),
     BlurAllImagesLoaded(bool),
     BlurAllNsfwLoaded(bool),
+    BlurModeLoaded(BlurMode),
 }
 
 #[derive(Clone, Debug, Default)]

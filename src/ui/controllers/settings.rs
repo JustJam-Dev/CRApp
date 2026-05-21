@@ -179,4 +179,15 @@ impl CrapApp {
             Ok(())
         }, self.tx.clone());
     }
+
+    pub fn set_blur_mode(&mut self, mode: crate::models::BlurMode) {
+        self.blur_mode = mode;
+        let db = self.db.clone();
+        let val = mode.to_string();
+        let ctx = self.ctx.clone();
+        crate::task::spawn_supervised(ctx.clone(), async move {
+            db.set_setting("blur_mode", &val).await?;
+            Ok(())
+        }, self.tx.clone());
+    }
 }

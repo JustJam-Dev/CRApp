@@ -1,7 +1,7 @@
 use crate::db::Database;
 use eframe::egui;
 
-use crate::models::{Character, Collection, DeepSearchResult, Lorebook, Template, ThemeMode, SpellcheckLanguage};
+use crate::models::{Character, Collection, DeepSearchResult, Lorebook, Template, ThemeMode, SpellcheckLanguage, BlurMode};
 
 use tokio::sync::mpsc;
 
@@ -120,6 +120,7 @@ pub struct CrapApp {
     pub editor_bright_mode: bool,
     pub blur_all_images: bool,
     pub blur_all_nsfw: bool,
+    pub blur_mode: BlurMode,
     pub blur_overrides: std::collections::HashMap<i64, bool>,
 
     // Gallery Zoom
@@ -239,6 +240,7 @@ impl CrapApp {
             editor_bright_mode: true,
             blur_all_images: false,
             blur_all_nsfw: false,
+            blur_mode: BlurMode::Simple,
             blur_overrides: std::collections::HashMap::new(),
 
             gallery_zoom: 1.0,
@@ -457,6 +459,21 @@ impl CrapApp {
                 let _ = tx.send(UiEvent::BlurAllNsfwLoaded(enabled)).await;
             } else {
                 let _ = tx.send(UiEvent::BlurAllNsfwLoaded(false)).await;
+            }
+            Ok(())
+        }, self.tx.clone());
+
+        // Initial Blur Mode Load
+        let tx = self.tx.clone();
+        let db = self.db.clone();
+        let ctx = self.ctx.clone();
+        crate::task::spawn_supervised(ctx.clone(), async move {
+            if let Some(val) = db.get_setting("blur_mode").await? {
+                use std::str::FromStr;
+                let mode = BlurMode::from_str(&val).unwrap_or(BlurMode::FullBlur);
+                let _ = tx.send(UiEvent::BlurModeLoaded(mode)).await;
+            } else {
+                let _ = tx.send(UiEvent::BlurModeLoaded(BlurMode::FullBlur)).await;
             }
             Ok(())
         }, self.tx.clone());

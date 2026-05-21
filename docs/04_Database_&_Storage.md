@@ -134,6 +134,7 @@ Individual lore pieces within a book.
 ## File Storage
 Non-text data is stored on the local filesystem, with paths stored in the database.
 -   **Avatars**: Stored in `data/avatars/`.
+    -   When dynamic blurring is active, pre-calculated processed versions are cached alongside the original avatar file (using `_blur` suffix for Simple blur, and `_pixel` suffix for Pixelize mode) to keep immediate-mode rendering fast and responsive.
 -   **Collection Images**: Stored in `data/collection_images/`.
 -   **Lorebook Covers**: Stored in `data/covers/`.
 -   **Gallery**: Stored in `data/gallery/` (Reserved for character galleries, managed separately).

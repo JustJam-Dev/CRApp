@@ -139,6 +139,9 @@ pub fn handle_ui_events(app: &mut CrapApp, ctx: &egui::Context) {
             UiEvent::BlurAllNsfwLoaded(enabled) => {
                 app.blur_all_nsfw = enabled;
             }
+            UiEvent::BlurModeLoaded(mode) => {
+                app.blur_mode = mode;
+            }
             UiEvent::LoreLinksBulkLoaded(map) => {
                 app.char_lore_map = map;
             }

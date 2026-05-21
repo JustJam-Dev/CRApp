@@ -227,6 +227,7 @@ pub fn render_side_panel(app: &mut CrapApp, ctx: &egui::Context) {
                                 &app.lorebooks,
                                 app.blur_all_images,
                                 app.blur_all_nsfw,
+                                app.blur_mode,
                                 &app.blur_overrides,
                             );
 

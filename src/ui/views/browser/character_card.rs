@@ -11,6 +11,7 @@ pub fn render_character_card(
     actions: &mut Vec<crate::ui::browser::BrowserAction>,
     blur_all_images: bool,
     blur_all_nsfw: bool,
+    blur_mode: crate::models::BlurMode,
     blur_overrides: &std::collections::HashMap<i64, bool>,
 ) {
     let card_width = 180.0;
@@ -72,9 +73,6 @@ pub fn render_character_card(
     );
 
     if let Some(path_str) = &char.avatar_path {
-        let uri = crate::ui::utils::get_image_uri(path_str);
-        crate::ui::widgets::paint_avatar_crop(ui, avatar_rect, &uri, 4.0);
-
         // Blur Logic
         let base_blur = blur_all_images || (blur_all_nsfw && char.is_nsfw) || char.blur_avatar;
         let should_blur = if let Some(&override_val) = blur_overrides.get(&char.id) {
@@ -83,7 +81,19 @@ pub fn render_character_card(
             base_blur
         };
 
-        if should_blur {
+        let uri = if should_blur && blur_mode != crate::models::BlurMode::FullBlur {
+            if let Some(processed) = crate::ui::utils::get_processed_avatar(path_str, blur_mode) {
+                crate::ui::utils::get_image_uri(&processed)
+            } else {
+                crate::ui::utils::get_image_uri(path_str)
+            }
+        } else {
+            crate::ui::utils::get_image_uri(path_str)
+        };
+
+        crate::ui::widgets::paint_avatar_crop(ui, avatar_rect, &uri, 4.0);
+
+        if should_blur && blur_mode == crate::models::BlurMode::FullBlur {
             ui.painter().rect_filled(
                 avatar_rect,
                 4.0,
