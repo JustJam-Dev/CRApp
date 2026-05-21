@@ -7,7 +7,7 @@
 
 ## UI Refinements
 - **Editor Tab Grouping & Labeling**: Changed the "Main Data" button label in the character editor to "Online Format". Additionally, grouped the "Online Format" and "Silly Tavern" tabs separately from "Notes", "Lorebooks", and "Gallery" using a vertical separator and horizontal spacing for a cleaner structure.
-- **Sidebar Folder Navigation**: Decoupled folder expansion/collapse from explorator navigation. Clicking a folder's name now strictly opens/selects it in the central browser view without changing its expansion state on the sidebar, while clicking the arrow icon strictly toggles the expansion state of the folder in the sidebar tree.
+- **Sidebar Folder Navigation**: Decoupled folder expansion/collapse from explorator navigation. Clicking a folder's name now strictly opens/selects it in the central browser view without changing its expansion state on the sidebar, while clicking the arrow icon strictly toggles the expansion state of the folder in the sidebar tree. Additionally, quick double-clicking on the folder name will toggle the folder's expansion state on the sidebar, preserving ease of navigation.
 
 ## Architectural Improvements
 - **Database Schema Expansion**: Automatically upgrades existing user databases during initialization, adding 13 new SillyTavern-specific metadata fields to the SQLite database schema while ensuring complete backward-compatibility and zero data loss.

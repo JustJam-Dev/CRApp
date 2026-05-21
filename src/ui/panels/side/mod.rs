@@ -435,6 +435,17 @@ pub fn render_side_panel(app: &mut CrapApp, ctx: &egui::Context) {
                         TreeAction::SelectCollection(id) => {
                             app.request_collection_switch(Some(id));
                         }
+                        TreeAction::ToggleFolder(id) => {
+                            let id_str = egui::Id::new(("folder", id));
+                            let mut state = egui::collapsing_header::CollapsingState::load_with_default_open(
+                                ctx,
+                                id_str,
+                                false,
+                            );
+                            state.toggle(ui);
+                            state.store(ctx);
+                            ctx.request_repaint();
+                        }
                         TreeAction::DeselectCollection => {
                             app.request_collection_switch(None);
                         }

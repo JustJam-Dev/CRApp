@@ -25,6 +25,7 @@ pub enum TreeAction {
     ShowStatisticsFavorites,
     ExportAll,
     ExportFavorites,
+    ToggleFolder(i64),
 }
 
 pub fn render_tree(
@@ -115,8 +116,27 @@ pub fn render_tree(
                 response = response.on_hover_text("No matching characters in this folder");
             }
 
-            if response.clicked() {
-                actions.push(TreeAction::SelectCollection(col.id));
+            let last_click_id = egui::Id::new(("folder_last_click", col.id));
+            let last_click_time: Option<f64> = ui.ctx().data(|d| d.get_temp(last_click_id));
+
+            if response.clicked() || response.double_clicked() {
+                let current_time = ui.input(|i| i.time);
+                let mut is_double_click = false;
+
+                if let Some(last_time) = last_click_time {
+                    let elapsed = current_time - last_time;
+                    if elapsed < 0.35 {
+                        is_double_click = true;
+                    }
+                }
+
+                ui.ctx().data_mut(|d| d.insert_temp(last_click_id, current_time));
+
+                if is_double_click {
+                    actions.push(TreeAction::ToggleFolder(col.id));
+                } else {
+                    actions.push(TreeAction::SelectCollection(col.id));
+                }
             }
 
             // Drag and Drop Target
