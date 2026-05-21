@@ -417,7 +417,7 @@ pub fn render_options_window(app: &mut CrapApp, ctx: &egui::Context) {
                         ui.heading("About");
                         ui.add_space(4.0);
                         ui.vertical_centered(|ui| {
-                            ui.label(egui::RichText::new("Created by JustJam").strong());
+                            ui.label(egui::RichText::new("Created by JustJam and FatStoner").strong());
                             ui.label(
                                 egui::RichText::new(
                                     "Special thanks to The Library of Snailexandra",
