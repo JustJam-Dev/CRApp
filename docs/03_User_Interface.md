@@ -113,6 +113,7 @@ The left-hand navigation bar.
     -   App Mode switching (Characters / Lorebooks / Settings).
     -   **Favorites**: Dedicated section for quickly accessing favorite characters. Displays a heart (\u2764) next to favorite character names.
     -   Collection Tree (recursive rendering of folders).
+        -   **Interaction**: Clicking a folder's name selects it to browse its contents in the central explorator view. Only clicking the dropdown arrow next to the name expands/collapses the folder in the sidebar tree.
     -   Global Search input.
         -   Filters the character tree in real-time.
         -   **Matches**: Character Name, Title, Tags, and **Linked Lorebook Titles**.

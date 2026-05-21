@@ -91,13 +91,11 @@ pub fn render_tree(
             id_str,
             false,
         );
-        let was_open = state.is_open();
 
         if (is_search_active && has_visible_descendants) || is_ancestor {
             state.set_open(true);
         }
 
-        let mut toggle = false;
         let header_res = state.show_header(ui, |ui| {
             let alpha = if has_visible_descendants { 255 } else { 100 };
             let text_color = if is_selected {
@@ -119,7 +117,6 @@ pub fn render_tree(
 
             if response.clicked() {
                 actions.push(TreeAction::SelectCollection(col.id));
-                toggle = true;
             }
 
             // Drag and Drop Target
@@ -133,13 +130,6 @@ pub fn render_tree(
 
             if let Some(dropped_id) = response.dnd_release_payload::<i64>() {
                 actions.push(TreeAction::MoveCharacter(*dropped_id, Some(col.id)));
-                // If dropped, we might want to make sure we don't accidentally toggle if we clicked?
-                // But dnd release usually doesn't trigger clicked.
-                // However, we set toggle = true above if clicked.
-                // Let's ensure toggle logic is safe.
-                // If dnd release happens, clicked() should be false for standard buttons,
-                // but selectable_label might be tricky.
-                toggle = false;
             }
 
             response.context_menu(|ui| {
@@ -209,19 +199,6 @@ pub fn render_tree(
                 blur_overrides,
             );
         });
-
-        if toggle {
-            if let Some(mut state) =
-                egui::collapsing_header::CollapsingState::load(ui.ctx(), id_str)
-            {
-                let is_open_now = state.is_open();
-                if was_open == is_open_now {
-                    state.toggle(ui);
-                    state.store(ui.ctx());
-                    ui.ctx().request_repaint();
-                }
-            }
-        }
     }
 
     // 2. Render Characters
